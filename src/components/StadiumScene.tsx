@@ -1,8 +1,9 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Physics, RigidBody, CuboidCollider, RapierRigidBody } from '@react-three/rapier';
 import { Environment, OrbitControls, Sky } from '@react-three/drei';
 import * as THREE from 'three';
+import useSound from 'use-sound';
 
 import { useGameStore } from '../store/useGameStore';
 
@@ -536,6 +537,8 @@ function GoalFlash({ active }: { active: boolean }) {
 export function StadiumScene({ ballRef }: { ballRef: React.RefObject<RapierRigidBody | null> }) {
   const [goalScored, setGoalScored] = useState(false);
   const { isKicking, setRoundResult, roundResult } = useGameStore();
+  const [playBounce] = useSound('https://assets.mixkit.co/active_storage/sfx/2092/2092-preview.mp3', { volume: 0.5 });
+  const lastBounceTime = useRef(0);
   
   useEffect(() => {
     if (roundResult === 'GOAL') {
@@ -640,6 +643,14 @@ export function StadiumScene({ ballRef }: { ballRef: React.RefObject<RapierRigid
           friction={0.5}
           position={[0, 0.5, 4]} // Penalty spot
           mass={0.43} // standard soccer ball mass in kg
+          onCollisionEnter={(payload) => {
+            const now = Date.now();
+            // Throttle bounce sounds to prevent spamming while rolling
+            if (now - lastBounceTime.current > 150) {
+              playBounce();
+              lastBounceTime.current = now;
+            }
+          }}
         >
           <mesh castShadow receiveShadow>
             <sphereGeometry args={[0.3, 32, 32]} />

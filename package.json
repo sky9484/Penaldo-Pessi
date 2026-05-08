@@ -30,6 +30,7 @@
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "three": "^0.184.0",
+    "use-sound": "^5.0.0",
     "viem": "^2.48.11",
     "vite": "^6.2.3",
     "wagmi": "^3.6.10",
